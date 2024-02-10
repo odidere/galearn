@@ -1,0 +1,40 @@
+name: Test and Build App
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    branches:
+      - main
+
+concurrency:
+  group: branch-deploy-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    run-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "This job is now running on a ${{ runner.os }} server hosted by Github!"
+      - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "The workflow is now ready to test your code on the runner."
+
+      - name: Install dependencies
+        run: make dev-install
+      
+      - name: Linting
+        run: make lint
+      
+      - name: Type checking
+        run: make typecheck
+
+      - name: Start containers
+        run: docker-compose up -d --build
+        run: echo "Container started successfully."
+      
+
+
